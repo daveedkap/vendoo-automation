@@ -6,17 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 import time
 
-# Initialize the WebDriver
-s = Service('/Users/luccapiconroura/Desktop/DepopAutomator/chromedriver')
-driver = webdriver.Chrome(service=s)
-
-# Function to login to the website
-# def login(email, password):
-#     driver.get("https://web.vendoo.co/app/")
-#     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "email")))
-#     driver.find_element(By.NAME, "email").send_keys(email)
-#     driver.find_element(By.NAME, "password").send_keys(password)
-#     driver.find_element(By.NAME, "password").send_keys(Keys.RETURN)
+driver = webdriver.Chrome()
 
 # Main automation function
 def automate_crosslisting():
@@ -93,7 +83,7 @@ def automate_crosslisting():
         tags_input.send_keys("#streetwear #workwear #vintage #y2k #levis #carhartt #dickies #jnco #lee #tommyhilfiger")
         
         # Sizing
-        waist = int(description_text.split("waist: ")[1].split()[0])
+        waist = int(current_description.split("waist: ")[1].split()[0])
         size = waist if waist < 40 else 40
         driver.find_element(By.ID, "listings.grailed.categorySpecifics.bottoms.casual_pants_size-multi-selector-container").send_keys(str(size) + Keys.ENTER)
 
@@ -108,4 +98,4 @@ def automate_crosslisting():
 # num_items_to_process = 9  # Change this number as needed
 
 # Run the automation
-automate_crosslisting(1)
+automate_crosslisting()
