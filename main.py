@@ -16,7 +16,7 @@ def automate_crosslisting(driver):
         )
         current_description = description_textarea.get_attribute('value')
 
-        # Process the description to remove the first line and any extra space
+        # Process the description to remove the first two lines and any extra space
         lines = current_description.split('\n')
         new_description = '\n'.join(lines[2:]).strip()
 
@@ -24,45 +24,48 @@ def automate_crosslisting(driver):
         description_textarea.clear()  # Clears the textarea
         description_textarea.send_keys(new_description)  # Inputs the new description
 
+
+
         # Brands
         # Inputting first brand
         brand_input = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.brands[0]"))
+            EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.brands[0]"))
         )
         brand_input.click()  # Click the input field to ensure it's active
         brand_input.clear()  # Clear any pre-filled content in the input field
         brand_input.send_keys("Vintage")  # Enter the brand name
         
-        dropdown_item = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "downshift-1-item-0")))
-        ActionChains(driver).move_to_element(dropdown_item).click().perform()
-
+        dropdown_item1 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "downshift-1-item-0")))
+        ActionChains(driver).move_to_element(dropdown_item1).click().perform()
+    
+        #error somewhere here
         add_brand_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "styles__AdditionButtonStyled"))
+            EC.element_to_be_clickable((By.CSS_SELECTOR, ".styles__AdditionButtonStyled-sc-1bqfbui-0.kGNZZf"))
         )
         add_brand_button.click()
 
+
         # Inputting second brand
         brand_input = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.brands[1]"))
+            EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.brands[1]"))
         )
         brand_input.click()  # Click the input field to ensure it's active
         brand_input.clear()  # Clear any pre-filled content in the input field
         brand_input.send_keys("Jnco")  # Enter the brand name
 
-        # add_brand_button = WebDriverWait(driver, 10).until(
-        # EC.element_to_be_clickable((By.CLASS_NAME, "styles__AdditionButtonStyled"))
-        # )
+        brand_input.send_keys(Keys.RETURN)
         add_brand_button.click()
 
         # Inputting third brand
         brand_input = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.brands[1]"))
+            EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.brands[2]"))
         )
         brand_input.click()  # Click the input field to ensure it's active
         brand_input.clear()  # Clear any pre-filled content in the input field
         brand_input.send_keys("Streetwear")  # Enter the brand name
+        brand_input.send_keys(Keys.RETURN)
 
-        
+
         # Condition
         driver.find_element(By.ID, "listings.grailed.overrides.condition-formGroupLabel").click()
         driver.find_element(By.XPATH, "//option[text()='Gently Used']").click()
