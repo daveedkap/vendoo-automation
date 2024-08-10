@@ -1,29 +1,15 @@
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
 import time
 
 driver = webdriver.Chrome()
 
 # Main automation function
-def automate_crosslisting():
-    # login("luccadavidvintage@gmail.com", "Atheistjew123")
-    
-    # WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".item-card")))
-    # items = driver.find_elements(By.CSS_SELECTOR, ".item-card")
-    
-    # for item in items[:num_items_to_process]:
-    #     item.click()
-    
-    # Wait for the Grailed button to be clickable and then click it
-        # grailed_button = WebDriverWait(driver, 10).until(
-        #     EC.element_to_be_clickable((By.ID, "grailed"))
-        # )
-        # grailed_button.click()
-        
+def automate_crosslisting(driver):
         # Locate the description textarea and get the existing text
         description_textarea = WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located((By.ID, "listings.grailed.overrides.description"))
@@ -46,6 +32,9 @@ def automate_crosslisting():
         brand_input.click()  # Click the input field to ensure it's active
         brand_input.clear()  # Clear any pre-filled content in the input field
         brand_input.send_keys("Vintage")  # Enter the brand name
+        
+        dropdown_item = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "downshift-1-item-0")))
+        ActionChains(driver).move_to_element(dropdown_item).click().perform()
 
         add_brand_button = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CLASS_NAME, "styles__AdditionButtonStyled"))
@@ -92,10 +81,5 @@ def automate_crosslisting():
 
         # Save
         driver.find_element(By.ID, "save-item-button").click()
-        time.sleep(3)  # Wait for the item to save
-        # driver.find_element(By.ID, "Back to Inventory").click() # Go back to inventory to work on next item
-
-# num_items_to_process = 9  # Change this number as needed
-
-# Run the automation
-automate_crosslisting()
+        time.sleep(3)
+        
