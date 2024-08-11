@@ -6,8 +6,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-driver = webdriver.Chrome()
-
 # Main automation function
 def automate_crosslisting(driver):
         # Locate the description textarea and get the existing text
@@ -16,21 +14,24 @@ def automate_crosslisting(driver):
         )
         current_description = description_textarea.get_attribute('value')
 
-        # Process the description to remove the first two lines and any extra space
+        print(f"Current Description: {current_description}")
+
         lines = current_description.split('\n')
         new_description = '\n'.join(lines[2:]).strip()
-
-        # Clear the text area and input the modified description
-        description_textarea.clear()  # Clears the textarea
-        description_textarea.send_keys(new_description)  # Inputs the new description
+        print(f"New Description: {new_description}")
 
 
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.description")))
+        description_textarea.clear()  
+        description_textarea.send_keys(new_description) 
 
         # Brands
         # Inputting first brand
         brand_input = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.brands[0]"))
         )
+        driver.execute_script("arguments[0].scrollIntoView(true);", brand_input)
+
         brand_input.click()  # Click the input field to ensure it's active
         brand_input.clear()  # Clear any pre-filled content in the input field
         brand_input.send_keys("Vintage")  # Enter the brand name
@@ -42,6 +43,7 @@ def automate_crosslisting(driver):
         add_brand_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, ".styles__AdditionButtonStyled-sc-1bqfbui-0.kGNZZf"))
         )
+        driver.execute_script("arguments[0].scrollIntoView(true);", add_brand_button)
         add_brand_button.click()
 
 
@@ -50,9 +52,9 @@ def automate_crosslisting(driver):
             EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.brands[1]"))
         )
         brand_input.click()  # Click the input field to ensure it's active
-        brand_input.clear()  # Clear any pre-filled content in the input field
+        brand_input.clear()
         brand_input.send_keys("Jnco")  # Enter the brand name
-
+        time.sleep(1)
         brand_input.send_keys(Keys.RETURN)
         add_brand_button.click()
 
@@ -63,11 +65,14 @@ def automate_crosslisting(driver):
         brand_input.click()  # Click the input field to ensure it's active
         brand_input.clear()  # Clear any pre-filled content in the input field
         brand_input.send_keys("Streetwear")  # Enter the brand name
+        time.sleep(1)
         brand_input.send_keys(Keys.RETURN)
 
 
         # Condition
-        driver.find_element(By.ID, "listings.grailed.overrides.condition-formGroupLabel").click()
+        condition_input = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "listings.grailed.overrides.condition-formGroupLabel"))
+        )
         driver.find_element(By.XPATH, "//option[text()='Gently Used']").click()
         
         # Tags
