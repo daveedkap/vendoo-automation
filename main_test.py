@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-from main import automate_crosslisting
+from main import GrailedAutomation
 
 # Setup the WebDriver
 def setup_driver():
@@ -26,7 +26,10 @@ def login(driver, email, password):
 def test_grailed(driver):
     driver.get("https://web.vendoo.co/app/item/Xl6YXpLpyavswcXdrW2m?marketplace=grailed")
     time.sleep(1)
-    automate_crosslisting(driver)
+    
+    # Instantiate the GrailedAutomation class and run the automation
+    grailed_automation = GrailedAutomation(driver)
+    grailed_automation.automate_crosslisting()
 
 # Run all tests
 def run_tests():
