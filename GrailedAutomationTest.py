@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-from main import GrailedAutomation
+from GrailedAutomation import GrailedAutomation
 
 # Setup the WebDriver
 def setup_driver():
