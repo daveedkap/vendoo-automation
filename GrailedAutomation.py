@@ -13,7 +13,27 @@ class GrailedAutomation:
         self.colors = ["Beige", "Black", "Blue", "Brown", "Cream", "Gold", "Gray", "Green",
                         "Multicolor", "Orange", "Pink", "Purple", "Red", "Silver", "Yellow", "Tan", "White"]
         self.denim = ["Jeans", "Jorts"]
-
+        self.description_categories = ["Jeans", "Workwear Pants", "Cargo Pants", "Sweatpants",
+                                       "Track Pants",  "Ski Pants", "Cargo Shorts", "Jorts", "Tee",
+                                        "Hoodie", "Jacket", "Beanie", "Cap",  "Sneaker", "Boot"]
+        self.category_map = {
+            "Jeans": "Menswear > Bottoms > Denim",
+            "Workwear Pants": "Menswear > Bottoms > Casual Pants",
+            "Cargo Pants": "Menswear > Bottoms > Casual Pants",
+            "Ski Pants": "Menswear > Bottoms > Casual Pants",
+            "Sweatpants": "Menswear > Bottoms > Sweatpants & Joggers",
+            "Track Pants": "Menswear > Bottoms > Sweatpants & Joggers",
+            "Cargo Shorts": "Menswear > Bottoms > Shorts",
+            "Jorts": "Menswear > Bottoms > Shorts",
+            "Tee": "Menswear > Tops > Short Sleeve T-Shirts",
+            "Hoodie": "Menswear > Tops > Sweatshirts & Hoodies",
+            "Jacket": "Menswear > Outerwear > Light Jackets",
+            "Beanie": "Menswear > Accessories > Hats",
+            "Cap": "Menswear > Accessories > Hats",
+            "Sneaker": "Menswear > Footwear > Low-Top Sneakers",
+            "Boot": "Menswear > Footwear > Boots"
+        }
+        
     def wait_for_element(self, by, identifier, timeout=20):
         return WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable((by, identifier)))
 
@@ -92,6 +112,46 @@ class GrailedAutomation:
         save_button = self.wait_for_element(By.ID, "save-item-button")
         self.scroll_into_view(save_button)
         # save_button.click()
+    
+    def update_category(self):
+        # Find which category is present in the description
+        selected_category = None
+        for category in self.description_categories:
+            if category.lower() in self.new_description.lower():
+                selected_category = category
+                break
+
+        # If a category is found, use the corresponding search keys
+        if selected_category and selected_category in self.category_map:
+            search_keys = self.category_map[selected_category]
+            print(f"Category found: {selected_category} - Sending keys: {search_keys}")
+
+            # Step 1: Find and click the category box
+            category_box = self.wait_for_element(By.ID, "categoryV2")
+            self.scroll_into_view(category_box)
+            category_box.click()
+
+            time.sleep(2)
+
+            # Step 2: Find the search input, click, and send the appropriate keys
+            category_search_input = self.wait_for_element(By.CSS_SELECTOR, "input[data-testid='category-search-field']")
+            category_search_input.click()
+            category_search_input.send_keys(search_keys)
+
+            last_word = search_keys.split(" > ")[-1]
+        
+            # Wait for the dropdown to be populated and select the correct option
+            time.sleep(2)
+            category_option = self.wait_for_element(By.XPATH, f"//div[@data-testid='category-option-dropdown' and .//div[text()='{last_word}']]")
+            category_option.click()
+
+            time.sleep(2)  # Give some time for the selection to be registered
+        else:
+            print("No matching category found in the description.")
+
+            
+        time.sleep(15)
+
 
     def automate_crosslisting(self):
         # Description
@@ -109,7 +169,10 @@ class GrailedAutomation:
         self.update_color()
 
         # Tags
-        self.update_tags()
+        # self.update_tags()
+
+        #Category
+        self.update_category()
 
         # Sizing
         description_textarea = self.wait_for_element(By.ID, "listings.grailed.overrides.description")
