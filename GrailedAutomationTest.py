@@ -33,6 +33,7 @@ def test_grailed(driver):
 
 # Run all tests
 def run_tests():
+    # Make webdriver download the vendoo extension and possibly log into grailed if need be.
     driver = setup_driver()
     try:
         login(driver, "dkaplanskybrimmer@gmail.com", "passwordfortesting")
@@ -44,3 +45,4 @@ def run_tests():
 # Automatically run tests when the script is executed
 if __name__ == "__main__":
     run_tests()
+
