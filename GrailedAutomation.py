@@ -254,11 +254,6 @@ class GrailedAutomation:
             print("No matching category found in the description.")
 
         time.sleep(2)
-
-    def save_changes(self):
-        save_button = self.wait_for_element(By.ID, "save-item-button")
-        self.scroll_into_view(save_button)
-        # save_button.click()
     
     def update_category(self):
         # Find which category is present in the description
@@ -278,7 +273,7 @@ class GrailedAutomation:
             self.scroll_into_view(category_box)
             category_box.click()
 
-            time.sleep(2)
+            time.sleep(1)
 
             # Step 2: Find the search input, click, and send the appropriate keys
             category_search_input = self.wait_for_element(By.CSS_SELECTOR, "input[data-testid='category-search-field']")
@@ -292,12 +287,9 @@ class GrailedAutomation:
             category_option = self.wait_for_element(By.XPATH, f"//div[@data-testid='category-option-dropdown' and .//div[text()='{last_word}']]")
             category_option.click()
 
-            time.sleep(2)  # Give some time for the selection to be registered
+            time.sleep(1)
         else:
             print("No matching category found in the description.")
-
-            
-        time.sleep(2)
 
     def update_measurements(self):
         # Determine the correct measurement keywords based on clothing type
@@ -336,6 +328,11 @@ class GrailedAutomation:
             print("Shipping address is correct.")
 
         time.sleep(1)
+        
+    def save_changes(self):
+        save_button = self.wait_for_element(By.XPATH, "//button[@data-testid='save-item-button']")
+        self.scroll_into_view(save_button)
+        save_button.click()
 
     def automate_crosslisting(self):
         # Description
@@ -368,6 +365,6 @@ class GrailedAutomation:
         self.verify_shipping()
 
         # Save changes
-        # self.save_changes() # We don't want to save changes yet
+        #self.save_changes() # We don't want to save changes yet
 
         time.sleep(3)
