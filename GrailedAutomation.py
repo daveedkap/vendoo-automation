@@ -140,6 +140,7 @@ class GrailedAutomation:
         condition_dropdown.click()
 
     def update_color(self):
+        # encountered bug twice where color was inputted twice rapidly and entered as "BlueBlue" 
         first_three_lines = '\n'.join(self.new_description.split('\n')[:3])
         found_color = None
 
@@ -169,16 +170,17 @@ class GrailedAutomation:
                 tags_to_use = tags
                 break
         if tags_to_use:
-            # Add conditional check to see if the tags box is already empty or not.
-            # clear_tags_button = self.wait_for_element(By.CSS_SELECTOR, ".react-select__clear-indicator")
-            # clear_tags_button.click()
+            tags_input_field = self.wait_for_element(By.ID, "listings.grailed.marketplaceSpecifics.hashtags")
+            tags_input_field.click()
 
-            # Click into the tags section
-            tags_input = self.wait_for_element(By.CSS_SELECTOR, ".react-select__input-container")
-            tags_input.click()
+            # Check if any tags are already present by looking for elements with the 'multiValue' class
+            existing_tags = self.driver.find_elements(By.CSS_SELECTOR, ".css-1rhbuit-multiValue")
+            if existing_tags:
+                print("Tags are present; clearing them.")
+                clear_tags_button = self.wait_for_element(By.CSS_SELECTOR, ".react-select__clear-indicator[aria-hidden='true']")
+                clear_tags_button.click()
 
             # Send the appropriate hashtags
-            tags_input_field = self.wait_for_element(By.ID, "listings.grailed.marketplaceSpecifics.hashtags")
             for tag in tags_to_use.split():
                 tags_input_field.send_keys(tag)
                 tags_input_field.send_keys(Keys.ENTER)
