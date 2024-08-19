@@ -325,6 +325,7 @@ class GrailedAutomation:
         if current_address != correct_address:
             print(f"Address is incorrect. Found: {current_address}. Updating to correct address.")
             self.clear_and_send_keys(shipping_input, correct_address)
+            time.sleep(3)
             shipping_input.send_keys(Keys.RETURN)
         else:
             print("Shipping address is correct.")
