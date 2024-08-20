@@ -17,9 +17,7 @@ This repository contains a Python script to automate the process of cross-listin
 
 ## Getting Started 
 
-
-##For MACOS:
-
+## For MACOS:
 
 To get this project running on your Mac in Visual Studio Code (VSCode), you'll need to follow these steps:
 
@@ -96,9 +94,7 @@ To start working on the project from a GitHub repository on your Mac, follow the
    - Open the main testing Python file in VSCode (GrailedAutomationTest.py).
    - Run the script
 
-
-##For Windows:
-
+## For Windows:
 
 To set up and run the provided project on Windows in Visual Studio Code (VSCode), follow these steps:
 
@@ -137,7 +133,6 @@ To set up and run the provided project on Windows in Visual Studio Code (VSCode)
 
    - This will install the Selenium library.
 
-
 ### 5. **Download and Install ChromeDriver**
    - **Determine Chrome Version:**
      - Open Chrome and go to `chrome://settings/help` to check your Chrome version.
@@ -152,8 +147,6 @@ To set up and run the provided project on Windows in Visual Studio Code (VSCode)
        - In the Environment Variables window, under "System variables," find the `Path` variable, select it, and click "Edit."
        - Click "New" and add the path to your `chromedriver.exe` (e.g., `C:\chromedriver`).
        - Click OK to close all the windows.
-
-
 
 To start working on the project from a GitHub repository on your PC, follow these steps:
 
@@ -174,7 +167,6 @@ To start working on the project from a GitHub repository on your PC, follow thes
 ### 3. **Open the Project in VSCode**
    - After cloning the repository, open the project in VSCode by navigating to the folder where the repository is located and selecting `Open Folder`.
    - VSCode will load the project, and you’ll see the files in the Explorer view.
-
 
 ### 4. **Run the Project**
    - Now that everything is set up, you can run GrailedAutomationTest.py
