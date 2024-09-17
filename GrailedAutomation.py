@@ -96,6 +96,8 @@ class GrailedAutomation:
             "Boot": "listings.grailed.categorySpecifics.footwear.boots_size",
             "Beanie": "listings.grailed.categorySpecifics.accessories.hats_size"
         }
+        
+        self.selected_category = None
 
     def wait_for_element(self, by, identifier, timeout=20):
         return WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable((by, identifier)))
@@ -120,17 +122,19 @@ class GrailedAutomation:
         description_textarea.clear()
         description_textarea.send_keys(self.new_description)
 
-    def select_brand(self, brand_name, brand_index):
-        brand_input = self.wait_for_element(By.ID, f"listings.grailed.overrides.brands[{brand_index}]")
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", self.wait_for_element(By.ID, "listings.grailed.overrides.brands[0]"))                  
-        self.clear_and_send_keys(brand_input, brand_name)
+    def select_brand(self, brand_name, index):
+        # Wait for the brand input field at the given index
+        brand_input = self.wait_for_element(By.ID, f"listings.grailed.overrides.brands[{index}]")
+        self.scroll_into_view(brand_input)
+        brand_input.clear()
+        brand_input.click()
+        brand_input.send_keys(brand_name)
+        time.sleep(1)  # Wait for the dropdown options to load
 
-        brand_dropdown = self.wait_for_element(By.XPATH, f"//div[@data-testid='select-option' and .//span[text()='{brand_name}']]")
-        ActionChains(self.driver).move_to_element(brand_dropdown).click().perform()
+        # Select the brand from the dropdown
+        dropdown_option = self.wait_for_element(By.XPATH, f"//div[@data-testid='select-option' and .//span[text()='{brand_name}']]")
+        ActionChains(self.driver).move_to_element(dropdown_option).click().perform()
 
-        if brand_index < 2:
-            add_brand_button = self.wait_for_element(By.CSS_SELECTOR, ".styles__AdditionButtonStyled-sc-1bqfbui-0.kGNZZf")
-            add_brand_button.click()
 
     def update_condition(self):
         condition_input = self.wait_for_element(By.ID, "listings.grailed.overrides.condition")
@@ -221,6 +225,9 @@ class GrailedAutomation:
                         if "size: " in line:
                             size_value = ''.join(char for char in line.split("size: ")[1] if char.isalpha())
                             break
+                    # Grailed doesn't recognize 's' as uniquely 'us s', so need to explicitly state this 
+                    if size_value and size_value.lower() == 's':
+                        size_value = 'us s'
                 elif selected_category.lower() in ["sneaker", "boot"]:
                     # Look for a float number (do not round)
                     for line in self.new_description.lower().split('\n'):
@@ -251,13 +258,14 @@ class GrailedAutomation:
                 self.clear_and_send_keys(size_input, size_value)
                 size_input.send_keys(Keys.ENTER)
 
+
                 print(f"Size updated to: {size_value}")
         else:
             print("No matching category found in the description.")
 
         time.sleep(2)
     
-    def update_category(self):
+    def update_category(self): 
         # Find which category is present in the description
         selected_category = None
         for category in self.description_categories:
@@ -265,8 +273,17 @@ class GrailedAutomation:
                 selected_category = category
                 break
 
+        # Set self.selected_category based on whether a category was found
+        if selected_category:
+            self.selected_category = selected_category
+            print(f"Selected category set to: {self.selected_category}")
+        else:
+            self.selected_category = None
+            print("No matching category found in the description.")
+            return  # Exit the function early if no category is found
+
         # If a category is found, use the corresponding search keys
-        if selected_category and selected_category in self.category_map:
+        if selected_category in self.category_map:
             search_keys = self.category_map[selected_category]
             print(f"Category found: {selected_category} - Sending keys: {search_keys}")
 
@@ -291,7 +308,102 @@ class GrailedAutomation:
 
             time.sleep(1)
         else:
-            print("No matching category found in the description.")
+            print("Selected category not found in category_map.")
+
+    def update_brands(self):
+        # Access self.selected_category set by update_category
+        selected_category = self.selected_category.lower() if self.selected_category else None
+
+        if not selected_category:
+            print("No selected category found.")
+            return  # Exit the function early if no category is found
+        else:
+            print(f"Selected category: {selected_category}")
+        
+
+        brands_to_input = []
+
+        cases = [
+            {
+                'categories': ['jeans', 'workwear pants', 'cargo pants', 'cargo shorts', 'shorts', 'jorts'],
+                'brands_to_look_for': ['lee', 'carhartt', 'dickies', 'old navy', 'ralph lauren', 'american eagle', 'kuhl', 
+                                       'dockers', 'eastern mountain sports', 'l.l. bean', 'columbia', 'tommy hilfiger', 'true religion', 
+                                       'ed hardy', 'baby phat', 'diesel', 'wrangler', 'guess'],
+                'brands_to_input_format': ['<brand>', 'Jnco', 'Streetwear'],
+                'default_brand': 'Vintage'
+            },
+            {
+                'categories': ['sweatpants', 'track pants', 'ski pants'],
+                'brands_to_look_for': ['nike', 'adidas', 'reebok', 'russell athletic', 'champion', 'aeropostale', 'hollister'],
+                'brands_to_input_format': ['<brand>', 'Jnco', 'Sportswear'],
+                'default_brand': 'Vintage'
+            },
+            {
+                'categories': ['tee', 'hoodie', 'sweatshirt', 'crewneck', 'jacket', 'beanie', 'cap'],
+                'brands_to_look_for': ['nike', 'adidas', 'champion', 'southpole', 'aeropostale', "levi's", 'harley davidson', 
+                                       'affliction', 'patagonia', 'the north face', 'columbia', 'arcteryx', 'russell athletic',
+                                       'polo', 'ralph lauren', 'guess', ],
+                'brands_to_input_format': ['<brand>', 'Vintage', 'Streetwear'],
+                'default_brand': 'Sportswear'
+            },
+            {
+                'categories': ['sneaker'],
+                'brands_to_look_for': ['nike', 'adidas', 'vans', 'hoka', 'asics', 'converse'],
+                'brands_to_input_format': ['<brand>', 'Vintage', 'Sportswear'],
+                'default_brand': 'Streetwear'
+            },
+            {
+                'categories': ['boot'],
+                'brands_to_look_for': ['nike', 'adidas', 'timberland', 'harley davidson', 'frye', 'doc martens', 'the north face', 'solomon'],
+                'brands_to_input_format': ['<brand>', 'Vintage', 'Streetwear'],
+                'default_brand': 'Sportswear'
+            }
+        ]
+
+        # Convert the new description to lowercase once for consistent case-insensitive comparison
+        first_line = '\n'.join(self.new_description.split('.')[:1])
+
+        # Iterate through the cases to find the matching one
+        for case in cases:
+            if selected_category in [cat.lower() for cat in case['categories']]:
+                print(f"Found matching case for category: {selected_category}")
+                # Found matching case
+                found_brand = None
+                for brand in case['brands_to_look_for']:
+                    if brand.lower() in first_line:
+                        found_brand = brand.title()
+                        print(f"Found brand in description: {found_brand}")
+                        break
+                if not found_brand:
+                    found_brand = case['default_brand']
+                    print(f"No brand found in description. Using default brand: {found_brand}")
+                # Build brands_to_input
+                brands_to_input = [b.replace('<brand>', found_brand) for b in case['brands_to_input_format']]
+                break  # Exit the loop after processing the matching case
+
+        if brands_to_input:
+            print(f"Brands to input: {brands_to_input}")
+            # Ensure that brand fields at indexes 0, 1, and 2 exist
+            for index in range(len(brands_to_input)):
+                try:
+                    brand_input = self.driver.find_element(By.ID, f"listings.grailed.overrides.brands[{index}]")
+                except Exception:
+                    # Add a new brand field if it doesn't exist
+                    add_brand_button = self.wait_for_element(By.CSS_SELECTOR, ".styles__AdditionButtonStyled-sc-1bqfbui-0.kGNZZf")
+                    add_brand_button.click()
+                    # Wait until the new brand input field is present
+                    self.wait_for_element(By.ID, f"listings.grailed.overrides.brands[{index}]")
+
+            # Clear existing brand fields
+            for index in range(len(brands_to_input)):
+                brand_input = self.wait_for_element(By.ID, f"listings.grailed.overrides.brands[{index}]")
+                brand_input.clear()
+
+            # Input new brands
+            for index, brand in enumerate(brands_to_input):
+                self.select_brand(brand, index)
+        else:
+            print("No matching case found for category.")
 
     def update_measurements(self):
         # Determine the correct measurement keywords based on clothing type
@@ -341,10 +453,11 @@ class GrailedAutomation:
         # Description
         self.update_description()
 
+        # Category
+        self.update_category()
+
         # Brands
-        self.select_brand("Vintage", 0)
-        self.select_brand("Jnco", 1)
-        self.select_brand("Streetwear", 2)
+        self.update_brands()
 
         # Condition
         self.update_condition()
@@ -354,9 +467,6 @@ class GrailedAutomation:
 
         # Tags
         self.update_tags()
-
-        # Category
-        self.update_category()
 
         # Sizing
         self.update_sizing()
